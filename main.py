@@ -124,7 +124,8 @@ async def pretrained_nlp_analysis(
             try:
                 similar_words = most_similar_words(first_word , topn=5) 
             except Exception as e :
-                logger.warning(f"Glove similarity failed for: " , {first_word} ,"and the error is:", {e}) 
+                # logger.warning(f"Glove similarity failed for: " , {first_word} ,"and the error is:", {e}) 
+                logger.warning(f"GloVe similarity failed for '{first_word}': {e}")
                 similar_words = [] 
         ## final result 
         result = {
@@ -163,7 +164,6 @@ async def pretrained_nlp_analysis(
             }
         )
      
-
 
 
 if __name__ == "__main__":

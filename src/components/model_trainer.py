@@ -28,7 +28,7 @@ class ModelTrainer:
                 test_array[:, -1] 
             )
             models = {
-                "LogisiticRegression": LogisticRegression(max_iter=100),
+                "LogisiticRegression": LogisticRegression(max_iter=1000),
                 "DecisionTree": DecisionTreeClassifier(random_state=42),
                 "RandomForest":RandomForestClassifier(random_state=42, n_estimators=50),
                 "KNeighboursClassifier":KNeighborsClassifier(n_neighbors=5) 
