@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set hide_dock = true %}
+{% block title %}AI assistant | Sanjeevani Clinic{% endblock %}
+{% block body_class %}app{% endblock %}
+{% block footer %}{% endblock %}
+{% block content %}
+<div class="wrap chat-shell">
+  <aside class="panel side">
+    <div>
+      <h3 id="who" data-i18n="cp.welcome">Welcome</h3>
+      <p class="muted" style="font-size:.88rem" data-i18n="cp.saved">Your visits are saved so the assistant can follow up.</p>
+    </div>
+    <div>
+      <div class="label" data-i18n="cp.visits">Upcoming and recent visits</div>
+      <div id="appts"><p class="muted" style="font-size:.88rem" data-i18n="cp.none">No visits yet. Ask the assistant to book one.</p></div>
+    </div>
+    <a class="btn btn-ghost" href="/profile" data-i18n="nav.profile">My profile</a>
+    <div class="spacer"></div>
+    <div class="emergency" data-i18n-html="cp.emerg"><strong>Emergency?</strong> Chest pain, trouble breathing, heavy bleeding or fainting: go to the nearest hospital now. Do not wait for a chat reply.</div>
+  </aside>
+
+  <section class="panel chat">
+    <div class="chat-head">
+      <div class="bot-avatar"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg></div>
+      <div><b data-i18n="chat.name">Sanjeevani assistant</b><small data-i18n="chat.online">● Online</small></div>
+    </div>
+    <div id="chatRoot" class="chat-root"></div>
+  </section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/chat.js"></script>
+<script>
+  async function loadSide() {
+    const d = await (await fetch("/chatbot/me")).json();
+    if (!d.user) return;
+    document.getElementById("who").textContent = (window.t("cp.hi", "Hi") + ", " + d.user.name);
+    const box = document.getElementById("appts"); box.innerHTML = "";
+    if (!d.appointments.length) { box.innerHTML = '<p class="muted" style="font-size:.88rem" data-i18n="cp.none"></p>'; window.applyI18n(box); return; }
+    d.appointments.forEach(a => {
+      const e = document.createElement("div"); e.className = "appt"; e.innerHTML = "<b></b><span></span>";
+      e.querySelector("b").textContent = a.name; e.querySelector("span").textContent = a.specialty + " · " + a.when; box.append(e);
+    });
+  }
+  window.SJChat.mount(document.getElementById("chatRoot"), { onBooked: loadSide });
+  loadSide();
+  document.addEventListener("langchange", loadSide);
+</script>
+{% endblock %}

@@ -1,110 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sanjeevani Screening Clinic</title>
-  <link rel="stylesheet" href="/static/style.css" />
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Sanjeevani Clinic | Covid screening and doctor booking{% endblock %}
+{% block content %}
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <span class="eyebrow" data-i18n="home.eyebrow">Screening desk · open now</span>
+      <h1 data-i18n-html="home.h1">Check your risk, then <em>book the right doctor</em> in minutes.</h1>
+      <p class="lede" data-i18n="home.lede">Take a one-minute covid screening, or just tell our AI assistant how you feel. It can look at a photo of an injury, find a doctor with free slots and remember you the next time you visit.</p>
+      <div class="cta-row">
+        <a href="/predict" class="btn btn-primary"><span data-i18n="home.cta1">Start screening</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a href="/chatbot" class="btn btn-ghost" data-i18n="home.cta2">Talk to the assistant</a>
+      </div>
+      <div class="trust"><span data-i18n="home.t1">Takes under a minute</span><span data-i18n="home.t2">Real doctors, real slots</span><span data-i18n="home.t3">Not a diagnosis</span></div>
+    </div>
 
-  <header class="site-header">
-    <a href="/" class="brand">
-      <span class="brand-mark">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M12 21s-7.5-4.6-9.8-9.4C.6 7.9 2.4 4.5 6 4.1c2-.2 3.6.9 6 3 2.4-2.1 4-3.2 6-3 3.6.4 5.4 3.8 3.8 7.5C19.5 16.4 12 21 12 21z" fill="#F6F3EC"/>
-        </svg>
-      </span>
-      Sanjeevani Clinic
-    </a>
-    <nav>
-      <a href="/predict">Start screening</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero">
-      <div>
-        <h1>A quick covid check, before your visit even begins.</h1>
-        <p class="lede">
-          Tell us your age, temperature and a couple of symptoms — our
-          screening desk gives you an instant read on your covid risk,
-          so the doctor's time goes where it's needed most.
-        </p>
-        <div class="cta-row">
-          <a href="/predict" class="btn-primary">
-            Start screening
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="#F6F3EC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </a>
-          <span class="hint-text">Takes under a minute</span>
-        </div>
-
-        <div class="stat-row">
-          <div>
-            <div class="stat-num">4</div>
-            <div class="stat-label">quick questions</div>
-          </div>
-          <div>
-            <div class="stat-num">&lt;1 min</div>
-            <div class="stat-label">to a result</div>
-          </div>
-          <div>
-            <div class="stat-num">24×7</div>
-            <div class="stat-label">desk open</div>
-          </div>
+    <div class="demo" aria-hidden="true">
+      <div class="demo-top"><i></i> Sanjeevani assistant</div>
+      <div class="demo-body">
+        <div class="b bot">Hello Rahul! How are you feeling today?</div>
+        <div class="b me">Mujhe bukhar aur khansi hai</div>
+        <div class="b bot">Sorry to hear that. What is your age, fever and city?</div>
+        <div class="mini-card"><b>Dr. Anita Rao · General Physician</b>
+          <div class="chips"><span>Today 04:00 PM</span><span>Today 05:00 PM</span><span>Mon 10:00 AM</span></div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <div class="hero-panel">
-        <span class="badge">Screening desk · Now open</span>
-        <div class="vitals-card">
-          <div>
-            <div class="label">Temperature</div>
-            <div class="value">101.2°F</div>
-          </div>
-          <div>
-            <div class="label">Cough</div>
-            <div class="value">Mild</div>
-          </div>
-        </div>
-        <div class="vitals-card">
-          <div>
-            <div class="label">City</div>
-            <div class="value">Jaipur</div>
-          </div>
-          <div>
-            <div class="label">Age</div>
-            <div class="value">34</div>
-          </div>
-        </div>
-        <div class="vitals-card">
-          <div>
-            <div class="label">Screening result</div>
-            <div class="value">Ready in seconds</div>
-          </div>
-        </div>
-      </div>
-    </section>
+  <section class="section mine hide" id="mine">
+    <div class="mine-head">
+      <div><span class="eyebrow" data-i18n="mine.sub">Everything about your visits in one place.</span><h2 style="margin-top:8px" data-i18n="mine.h">Your health at a glance</h2></div>
+      <a class="btn btn-ghost" href="/profile" data-i18n="mine.open">Open my profile</a>
+    </div>
+    <div class="stats" id="mineCards"></div>
+  </section>
 
-    <section class="reasons">
-      <div class="reason-card">
-        <h3>No queue, no waiting</h3>
-        <p>Fill the form from home or the waiting room — the result comes back the moment you submit it.</p>
-      </div>
-      <div class="reason-card">
-        <h3>Built on real intake data</h3>
-        <p>The screening model learns from patient records of age, fever, cough type and city to gauge risk.</p>
-      </div>
-      <div class="reason-card">
-        <h3>A guide, not a diagnosis</h3>
-        <p>Treat this as a first read. A positive result still means the doctor should examine you properly.</p>
-      </div>
-    </section>
-  </main>
+  <section class="section">
+    <div class="section-head"><span class="eyebrow" data-i18n="home.s1e">What you can do</span><h2 data-i18n="home.s1h">Everything a front desk does, without the queue.</h2></div>
+    <div class="grid-4">
+      <article class="feature"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        <h3 data-i18n="home.f1h">Covid screening</h3><p data-i18n="home.f1p">Enter age, fever, cough and city. A trained model gives an instant risk estimate.</p></article>
+      <article class="feature"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg></div>
+        <h3 data-i18n="home.f2h">AI assistant</h3><p data-i18n="home.f2p">Describe symptoms in English or Hinglish. It asks only what is missing.</p></article>
+      <article class="feature"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+        <h3 data-i18n="home.f3h">Photo understanding</h3><p data-i18n="home.f3p">Share a photo of a rash or injury and it points you to the right specialist.</p></article>
+      <article class="feature"><div class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></div>
+        <h3 data-i18n="home.f4h">Easy booking</h3><p data-i18n="home.f4p">Pick a free slot on a doctor card. A returning patient keeps the same doctor.</p></article>
+    </div>
+  </section>
 
-  <footer class="site-footer">
-    Sanjeevani Screening Clinic — this tool assists triage, it does not replace medical diagnosis.
-  </footer>
+  <section class="section">
+    <div class="section-head"><span class="eyebrow" data-i18n="home.s2e">How it works</span><h2 data-i18n="home.s2h">Three steps from symptom to appointment.</h2></div>
+    <div class="grid-3 steps">
+      <div class="step"><h3 data-i18n="home.p1h">Tell us how you feel</h3><p data-i18n="home.p1p">Use the screening form or chat with the assistant.</p></div>
+      <div class="step"><h3 data-i18n="home.p2h">Get a first read</h3><p data-i18n="home.p2p">See your screening estimate and the specialist you should consult.</p></div>
+      <div class="step"><h3 data-i18n="home.p3h">Book a slot</h3><p data-i18n="home.p3p">Tap a free time on a doctor card. Your visit summary is saved for next time.</p></div>
+    </div>
+  </section>
 
-</body>
-</html>
+  <div class="band" data-i18n-html="home.band"><strong>Please note:</strong> the screening is a rough estimate from a small demo model. Only a doctor can diagnose. If you have chest pain, trouble breathing or heavy bleeding, go to the emergency room now.</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const t = (k, f) => window.t(k, f), esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  let D = null;
+  function draw() {
+    if (!D) return;
+    const up = D.appointments.filter(a => a.status === "upcoming"), nx = up[up.length - 1];
+    const pend = D.bills.filter(b => b.status === "pending"), due = pend.reduce((s, b) => s + b.amount, 0);
+    const cards = [
+      ["pf.next", nx ? nx.date + " · " + nx.time : t("pf.nonext").split(".")[0], "appts", "sm"],
+      ["pf.rx", D.prescriptions.length, "rx"],
+      ["pf.s5", "₹" + due.toFixed(0), "bills"],
+      ["pf.records", D.records.length, "records"],
+      ["pf.mydoc", D.doctor ? D.doctor.name : "-", "doctor", "sm"]
+    ];
+    document.getElementById("mineCards").innerHTML = cards.map(([k, v, go, cls]) =>
+      `<a class="stat link" href="/profile#${go}"><span>${esc(t(k))}</span><b class="${cls || ""}">${esc(v)}</b></a>`).join("");
+    document.getElementById("mine").classList.remove("hide");
+  }
+  fetch("/chatbot/profile").then(r => r.ok ? r.json() : null).then(d => { D = d; draw(); }).catch(() => {});
+  document.addEventListener("langchange", draw);
+})();
+</script>
+{% endblock %}
