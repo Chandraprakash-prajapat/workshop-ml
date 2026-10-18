@@ -19,7 +19,7 @@ class VectorStore:
         logger.info("RAG STAGE : Building vector store...")
         try:
             texts = [c["text"] for c in chunks]
-            vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
+            vectorizer = TfidfVectorizer(max_features=5000, stop_words='english')
             tfidf_matrix = vectorizer.fit_transform(texts).toarray().astype("float32")
             faiss.normalize_L2(tfidf_matrix)
             dimension = tfidf_matrix.shape[1]

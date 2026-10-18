@@ -31,7 +31,7 @@ class Retriever:
                     "chunk_id": chunk['chunk_id'],
                     "score": round(float(score),4) 
                 })
-                logger.info(f"Retrieved {len(results)} chunks for query: '{query}' ")
-                return results 
+            logger.info(f"Retrieved {len(results)} chunks for query: '{query}' ")
+            return results 
         except Exception as e:
             raise CustomException(e,sys) 
