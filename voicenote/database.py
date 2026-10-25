@@ -5,11 +5,18 @@ from datetime import datetime
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(BASE_DIR))          # project root, taaki `src` import ho
-from src.logger import get_logger
+try:
+    from src.logger import get_logger          # local: project ka logger
+except ImportError:                            # Vercel: src folder nahi hota
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    get_logger = logging.getLogger
 
 logger = get_logger(__name__)
 
-DB_PATH = os.path.join(BASE_DIR, "cafe.db")
+# Vercel par sirf /tmp me likh sakte hain (wo bhi temporary)
+DATA_DIR = "/tmp" if os.getenv("VERCEL") else BASE_DIR
+DB_PATH = os.path.join(DATA_DIR, "cafe.db")
 CAPACITY = {"breakfast": 20, "lunch": 30, "dinner": 30}      # har meal ki seats
 
 

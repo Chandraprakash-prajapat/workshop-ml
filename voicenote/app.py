@@ -16,12 +16,19 @@ from sarvamai import SarvamAI
 load_dotenv()   # root ki .env se SARVAM_API_KEY aur GROQ_API_KEY
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-LOG_DIR = os.path.join(BASE_DIR, "logs")
+# Vercel par sirf /tmp me likh sakte hain (wo bhi temporary)
+DATA_DIR = "/tmp" if os.getenv("VERCEL") else BASE_DIR
+LOG_DIR = os.path.join(DATA_DIR, "logs")
 METADATA_FILE = os.path.join(LOG_DIR, "conversation_metadata.jsonl")
 
 # Project ka logger (src/logger.py)
 sys.path.insert(0, os.path.dirname(BASE_DIR))
-from src.logger import get_logger
+try:
+    from src.logger import get_logger          # local: project ka logger
+except ImportError:                            # Vercel: src folder nahi hota
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    get_logger = logging.getLogger
 logger = get_logger(__name__)
 
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
