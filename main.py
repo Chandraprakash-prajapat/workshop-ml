@@ -1,7 +1,5 @@
 import os 
 import sys 
-from dotenv import load_dotenv
-load_dotenv(override=True)
 import uvicorn 
 from fastapi import FastAPI, Form, Request 
 from fastapi.responses import HTMLResponse
@@ -16,31 +14,12 @@ from nlp_pretrained.ner_tagger import(get_pos_tags , extract_entities)
 from nlp_pretrained.embedding import (most_similar_words) 
 from nlp_pretrained.sentiment_analyzer import analyze_sentiment 
 
-
-from starlette.middleware.sessions import SessionMiddleware
-from chatbot.routes import router as chatbot_router
-from chatbot.admin import router as admin_router
-from chatbot.database.connection import init_db
-from chatbot.database import crud
-
+from rag.rag_pipeline import RAGPipeline 
 
 app= FastAPI(title="Covid Prediction Clinic") 
 
 ##mouting the css file 
 app.mount("/static", StaticFiles(directory="static"), name="static") 
-
-
-app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY", "change-me"))
-app.include_router(chatbot_router)
-app.include_router(admin_router)
-
-try:
-    init_db()
-except Exception as e:
-    logger.warning(f"Chatbot DB not ready: {e}")
-
-
-
 
 ##Set the template folder 
 templates = Jinja2Templates(directory="templates") 
@@ -49,10 +28,6 @@ templates = Jinja2Templates(directory="templates")
 async def home(request:Request):
     logger.info("Home page accessed...") 
     return templates.TemplateResponse(request, "index.html") 
-
-@app.get("/profile", response_class=HTMLResponse)
-async def profile_page(request: Request):
-    return templates.TemplateResponse(request, "profile.html")
 
 @app.get("/predict", response_class=HTMLResponse)
 async def predict_form(request: Request):
@@ -74,12 +49,6 @@ async def predict_result(
         data_df = custom_data.get_data_as_dataframe() 
         predict_pipeline = PredictPipeline() 
         result , probability = predict_pipeline.predict(data_df) 
-        user = request.session.get("user")          # logged in? keep the result in the patient's profile
-        if user:
-            try:
-                crud.save_screening(user["id"], age, gender, fever, cough, city, result, float(probability), "form")
-            except Exception as e:
-                logger.warning(f"Screening not saved to profile: {e}")
         return templates.TemplateResponse(
             request,
             "predict.html",
@@ -157,8 +126,7 @@ async def pretrained_nlp_analysis(
             try:
                 similar_words = most_similar_words(first_word , topn=5) 
             except Exception as e :
-                # logger.warning(f"Glove similarity failed for: " , {first_word} ,"and the error is:", {e}) 
-                logger.warning(f"GloVe similarity failed for '{first_word}': {e}")
+                logger.warning(f"Glove similarity failed for: " , {first_word} ,"and the error is:", {e}) 
                 similar_words = [] 
         ## final result 
         result = {
@@ -197,6 +165,29 @@ async def pretrained_nlp_analysis(
             }
         )
      
+
+
+###RAG Pipeline 
+rag_pipeline = RAGPipeline() 
+
+@app.get("/ask", response_class=HTMLResponse)
+async def clinic_assistant_form(request:Request):
+    logger.info("Clinic assistant(RAG) FORM page accessed...") 
+    return templates.TemplateResponse(request, "clinic_assistant.html", {"result":None}) 
+
+@app.post("/ask", response_class=HTMLResponse)
+async def clinic_assitant_answer(request:Request, question:str=Form(...)):
+    logger.info(f"Clinic assistant question received: '{question}' ") 
+    try:
+        result = rag_pipeline.answer(question) 
+        return templates.TemplateResponse(
+            request,
+            "clinic_assistant.html",
+            {"result":result, 
+             "form_data": {"question":question}, "error":None} 
+        )
+    except Exception as e:
+        raise CustomException(e,sys) 
 
 
 if __name__ == "__main__":

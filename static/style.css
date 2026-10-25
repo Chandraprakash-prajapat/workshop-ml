@@ -1,4 +1,4 @@
-/* ==========================================================
+/* /* ==========================================================
    Sanjeevani Clinic: one stylesheet for every page.
    Sections: 1 tokens, 2 base, 3 header/footer, 4 buttons+forms,
    5 home, 6 screening, 7 NLP lab, 8 assistant (chat)
@@ -348,4 +348,4 @@ a.stat.link { text-decoration: none; color: inherit; display: block; }
   .card { padding: 22px; } .hero { padding-top: 40px; }
   
 }
-@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } } */

@@ -1,0 +1,14 @@
+# PDF RAG ka config (clinic wale rag_config.yaml se alag)
+knowledge_base:
+  source_dir: rag/test_knowledge_base      # jis folder me PDF rakhi hai
+  chunk_size: 400
+  chunk_overlap: 60
+
+vector_store:
+  faiss_index_path: rag/artifacts/pdf/faiss_index.bin
+  vectorizer_path: rag/artifacts/pdf/tfidf_vectorizer.pkl
+  chunks_metadata_path: rag/artifacts/pdf/chunks_metadata.pkl
+
+retrieval:
+  top_k: 3
+  min_similarity: 0.05

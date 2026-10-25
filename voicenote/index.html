@@ -169,6 +169,7 @@ const ICON_STOP = '<svg width="26" height="26" viewBox="0 0 24 24" fill="current
 const ICON_PLAY = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>';
 const ICON_PAUSE = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4.5" height="14" rx="1.5"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.5"/></svg>';
 
+const sessionId = crypto.randomUUID();
 let history = [];              // [{role, content}] text only, sent to the server each turn
 let state = "idle";            // idle | recording | processing | speaking
 let ctx, stream, source, processor, chunks = [], levels = [];
@@ -190,7 +191,9 @@ const fmt = s => isFinite(s) && s > 0 ? Math.floor(s / 60) + ":" + String(Math.f
 
 function friendlyError(msg) {
   msg = String(msg || "Something went wrong.");
-  if (/insufficient_quota|No credits/i.test(msg)) return "Sarvam credits have run out. Add credits in the Sarvam dashboard and try again.";
+  if (/insufficient_quota|No credits/i.test(msg)) return "Sarvam credits have run out. Check your Sarvam account and try again.";
+  if (/422|couldn't hear anything|recording is too short|too short/i.test(msg)) return "I couldn't hear that clearly. Please speak a little louder and try again.";
+  if (/502|speech-to-text failed|text-to-speech failed|LLM failed/i.test(msg)) return "The voice service had a temporary problem. Please try again.";
   return msg.length > 140 ? msg.slice(0, 140) + "…" : msg;
 }
 
@@ -396,6 +399,20 @@ async function stopRecording() {
   if (total / rate < 0.4) { setState("idle", "That was too short. Hold on a little longer and try again.", true); return; }
   const samples = new Float32Array(total);
   let off = 0; for (const c of chunks) { samples.set(c, off); off += c.length; }
+
+  // Avoid sending silent recordings to the API (a common cause of 422 errors).
+  let peak = 0, sumSquares = 0;
+  for (const sample of samples) {
+    const value = Math.abs(sample);
+    if (value > peak) peak = value;
+    sumSquares += sample * sample;
+  }
+  const rms = Math.sqrt(sumSquares / Math.max(1, samples.length));
+  if (peak < 0.008 || rms < 0.0015) {
+    setState("idle", "I couldn't hear you. Check your mic and speak a little louder.", true);
+    return;
+  }
+
   const wav = encodeWav(samples, rate);
   const mine = addBubble("you", {
     peaks: peaksFrom(samples, BARS), duration: total / rate,
@@ -419,6 +436,7 @@ async function sendAudio(wav, mine) {
   const form = new FormData();
   form.append("audio", wav, "audio.wav");
   form.append("history", JSON.stringify(history));
+  form.append("session_id", sessionId);
   try {
     const res = await fetch("/api/voice", { method: "POST", body: form });
     let data = {};
@@ -448,6 +466,9 @@ micBtn.addEventListener("click", toggleRecording);
 clearBtn.addEventListener("click", () => {
   if (currentPlayer) currentPlayer.stop();
   history = [];
+  const resetForm = new FormData();
+  resetForm.append("session_id", sessionId);
+  fetch("/api/session/reset", { method: "POST", body: resetForm }).catch(console.error);
   showEmpty();
   setState("idle", READY);
 });
